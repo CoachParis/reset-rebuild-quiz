@@ -1085,6 +1085,9 @@
       <div id="auth-toggle-text" style="text-align:center;font-size:12px;color:#4a3d5c;">
         Already have an account? <a href="#" onclick="toggleAuthMode()" style="color:#7c3aed;font-weight:600;">Sign in</a>
       </div>
+      <div id="forgot-password-row" style="text-align:center;margin-top:8px;display:none;">
+        <a href="#" onclick="forgotPassword()" style="color:#7c3aed;font-size:12px;">Forgot password?</a>
+      </div>
     </div>
 
     <div style="text-align:center;margin-top:20px;font-size:11px;color:#7a5f85;">
@@ -1759,6 +1762,7 @@ function showSessionKickedOverlay() {
 window.toggleAuthMode = function() {
   const isSignUp = document.getElementById('auth-name-row').style.display !== 'none';
   document.getElementById('auth-name-row').style.display = isSignUp ? 'none' : 'block';
+  document.getElementById('forgot-password-row').style.display = isSignUp ? 'block' : 'none';
   document.getElementById('auth-btn').textContent = isSignUp ? 'Sign In' : 'Create Account';
   document.getElementById('auth-btn').onclick = isSignUp ? window.firebaseSignIn : window.firebaseSignUp;
   document.getElementById('auth-toggle-text').innerHTML = isSignUp
@@ -1768,7 +1772,26 @@ window.toggleAuthMode = function() {
   document.getElementById('auth-error').textContent = '';
 };
 
-// ── COACH ANNOUNCEMENTS ──
+window.forgotPassword = async function() {
+  const email = document.getElementById('auth-email').value.trim();
+  const errorEl = document.getElementById('auth-error');
+
+  if (!email) {
+    errorEl.textContent = 'Please enter your email address first.';
+    errorEl.style.color = '#ef4444';
+    return;
+  }
+
+  try {
+    const { sendPasswordResetEmail } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+    await sendPasswordResetEmail(auth, email);
+    errorEl.textContent = '✓ Password reset email sent! Check your inbox.';
+    errorEl.style.color = '#4ade80';
+  } catch(e) {
+    errorEl.textContent = 'Could not send reset email. Please check your email address.';
+    errorEl.style.color = '#ef4444';
+  }
+};
 window.saveAnnouncement = async function() {
   const text = document.getElementById('coach-announcement-text').value.trim();
   if (!text) return;
