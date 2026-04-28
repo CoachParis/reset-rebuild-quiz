@@ -1147,20 +1147,19 @@
     };
     const segmentId = segmentMap[key];
 
-    // Auto-submit hidden Flodesk form
-    setTimeout(() => {
-      try {
-        const wrapper = document.getElementById('flodesk-wrapper');
-        const nameInput = wrapper.querySelector('input[name="first_name"], input[placeholder*="name"], input[placeholder*="Name"]');
-        const emailInput = wrapper.querySelector('input[name="email"], input[type="email"]');
-        const submitBtn = wrapper.querySelector('button[type="submit"], button');
-        if (nameInput) nameInput.value = firstName;
-        if (emailInput) emailInput.value = email;
-        if (submitBtn) submitBtn.click();
-      } catch(e) {
-        console.log('Flodesk form submit error:', e);
-      }
-    }, 2000);
+    // Send directly to Flodesk API
+    fetch('https://api.flodesk.com/v1/subscribers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + btoa('fd_key_0d8750bec59f43f58f49443cecbbacaf.OaW9Fey0r8BUpwyMLKjtGvvsVIvofcwgIREWjlg7yEMMO1DMb8OrQxyRhEfG9aKQCazyeFnXFZEVhnQFPpD5ttraY0QG8ClBCE2cIT7MHui5NgrToEYfDzOokJD32vvm8kXnzlU6nXuPJ0a8J9XiBSZ5oon8fynTrF09ONG6UHDwjK8SwTB7DkqTWbhlG3rT:')
+      },
+      body: JSON.stringify({
+        email: email,
+        first_name: firstName,
+        segment_ids: [segmentId]
+      })
+    }).then(r => r.json()).then(d => console.log('Flodesk response:', d)).catch(err => console.log('Flodesk error:', err));
 
     const insightHTML = `
       <div class="insight-card">
